@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Task, CreateTaskData, UpdateTaskData } from '../types/task';
+import type { Task, CreateTaskData, UpdateTaskData } from '../types/task';
 import { ApiService } from '../services/api';
 
 export function useTasks() {

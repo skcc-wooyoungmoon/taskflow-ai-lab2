@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Task, Priority, Status, CreateTaskData, UpdateTaskData } from '../types/task';
+import { useState, useEffect } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
+import type { Task, Priority, Status, CreateTaskData, UpdateTaskData } from '../types/task';
 
 interface TaskFormProps {
   task?: Task;
-  onSubmit: (data: CreateTaskData | UpdateTaskData) => void;
+  onSubmit: (data: CreateTaskData | UpdateTaskData) => void | Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
@@ -31,7 +32,7 @@ export default function TaskForm({ task, onSubmit, onCancel, isSubmitting = fals
     }
   }, [task]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     
     const submitData = {
@@ -42,7 +43,8 @@ export default function TaskForm({ task, onSubmit, onCancel, isSubmitting = fals
 
     if (task) {
       // Update task - don't include teamId
-      const { teamId, ...updateData } = submitData;
+      const { teamId: _teamId, ...updateData } = submitData;
+      void _teamId;
       onSubmit(updateData);
     } else {
       // Create new task
@@ -50,7 +52,7 @@ export default function TaskForm({ task, onSubmit, onCancel, isSubmitting = fals
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
