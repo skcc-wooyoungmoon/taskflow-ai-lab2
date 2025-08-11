@@ -5,7 +5,7 @@
       "modelId": "claude-3-5-sonnet-20241022",
       "maxTokens": 8192,
       "temperature": 0.2,
-      "apiKey": "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"
+      "apiKey": "YOUR_ANTHROPIC_API_KEY_HERE"
     },
     "research": {
       "provider": "perplexity",

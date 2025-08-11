@@ -4,7 +4,7 @@ import { errorHandler } from './middleware/errorHandler';
 import taskRoutes from './routes/tasks';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 
 // Middleware
 app.use(cors());

@@ -3,12 +3,12 @@ import { userService } from '../services/userService';
 
 export const userController = {
   // Get all users
-  getAllUsers: async (req: Request, res: Response, next: NextFunction) => {
+  getAllUsers: async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const users = await userService.getAllUsers();
-      res.json(users);
+      return res.json(users);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -16,13 +16,16 @@ export const userController = {
   getUserById: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
       const user = await userService.getUserById(id);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-      res.json(user);
+      return res.json(user);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -31,9 +34,9 @@ export const userController = {
     try {
       const userData = req.body;
       const newUser = await userService.createUser(userData);
-      res.status(201).json(newUser);
+      return res.status(201).json(newUser);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -41,14 +44,17 @@ export const userController = {
   updateUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
       const updateData = req.body;
       const updatedUser = await userService.updateUser(id, updateData);
       if (!updatedUser) {
         return res.status(404).json({ message: 'User not found' });
       }
-      res.json(updatedUser);
+      return res.json(updatedUser);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -56,13 +62,16 @@ export const userController = {
   deleteUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ message: 'User ID is required' });
+      }
       const deleted = await userService.deleteUser(id);
       if (!deleted) {
         return res.status(404).json({ message: 'User not found' });
       }
-      res.status(204).send();
+      return res.status(204).send();
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 };
