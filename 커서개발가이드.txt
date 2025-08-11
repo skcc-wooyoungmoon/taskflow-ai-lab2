@@ -1,0 +1,493 @@
+# Cursor를 활용한 AI 개발 실습 시나리오
+
+## 📋 프로젝트 개요: TaskFlow - 할일 관리 시스템
+
+### RFP (Request for Proposal)
+
+**프로젝트명**: TaskFlow - 개인 할일 관리 웹 애플리케이션
+
+**요구사항**:
+- 사용자가 할일을 추가, 수정, 삭제, 완료 처리할 수 있는 시스템
+- 우선순위별 할일 분류 기능
+- 마감일 설정 및 알림 기능
+- 반응형 웹 디자인
+- 실시간 데이터 동기화
+
+**기술 스택**:
+- Frontend: React + TypeScript + Tailwind CSS
+- Backend: Node.js + Express + TypeScript
+- Database: SQLite + Prisma ORM
+- API: RESTful API
+
+**예상 기간**: 1-2일 (AI 도구 활용)
+
+---
+
+## 🚀 개발 환경 설정
+
+### 1. 기본 환경 준비
+```bash
+# 프로젝트 디렉토리 생성
+mkdir taskflow-ai-lab
+cd taskflow-ai-lab
+
+# Git 초기화
+git init
+```
+
+### 2. Cursor 설정
+- Cursor IDE 설치 및 실행
+- AI 기능 활성화
+- 프로젝트 폴더 열기
+
+---
+
+## 📋 단계별 개발 프로세스
+
+### STEP 1: 요구사항 분석 및 기획
+
+#### 🤖 Cursor 프롬프트 1-1
+```
+다음 비즈니스 요구사항을 분석하여 기능 명세서를 작성해줘:
+
+비즈니스 요구사항:
+- 개인 사용자를 위한 할일 관리 시스템
+- 할일 추가, 수정, 삭제, 완료 기능
+- 우선순위 설정 (높음, 보통, 낮음)
+- 마감일 설정
+- 할일 상태별 필터링
+- 반응형 웹 인터페이스
+
+다음 형식으로 정리해줘:
+1. 핵심 기능 목록
+2. 사용자 스토리
+3. 기술적 요구사항
+4. 데이터 모델 초안
+```
+
+#### 예상 결과물
+```markdown
+## 기능 명세서
+
+### 핵심 기능
+1. 할일 CRUD 작업
+2. 우선순위 관리
+3. 상태 관리 (진행중, 완료)
+4. 마감일 관리
+5. 필터링 및 검색
+
+### 사용자 스토리
+- 사용자는 새로운 할일을 추가할 수 있다
+- 사용자는 기존 할일을 수정할 수 있다
+- 사용자는 할일을 완료 처리할 수 있다
+- 사용자는 우선순위별로 할일을 분류할 수 있다
+```
+
+---
+
+### STEP 2: 데이터베이스 설계
+
+#### 🤖 Cursor 프롬프트 2-1
+```
+TaskFlow 할일 관리 시스템을 위한 데이터베이스 스키마를 Prisma를 사용해서 설계해줘.
+
+요구사항:
+- 할일(Task) 엔티티: 제목, 설명, 우선순위, 상태, 생성일, 마감일
+- 우선순위: HIGH, MEDIUM, LOW
+- 상태: PENDING, IN_PROGRESS, COMPLETED
+- TypeScript 타입도 함께 생성해줘
+
+다음 파일들을 생성해줘:
+1. prisma/schema.prisma
+2. src/types/task.ts
+```
+
+#### 생성될 코드
+
+**prisma/schema.prisma**
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    Priority @default(MEDIUM)
+  status      Status   @default(PENDING)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+```
+
+**src/types/task.ts**
+```typescript
+export enum Priority {
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW'
+}
+
+export enum Status {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED'
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: Priority;
+  status: Status;
+  dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateTaskDTO {
+  title: string;
+  description?: string;
+  priority?: Priority;
+  dueDate?: Date;
+}
+
+export interface UpdateTaskDTO {
+  title?: string;
+  description?: string;
+  priority?: Priority;
+  status?: Status;
+  dueDate?: Date;
+}
+```
+
+---
+
+### STEP 3: API 설계 및 백엔드 개발
+
+#### 🤖 Cursor 프롬프트 3-1
+```
+TaskFlow API 서버를 Node.js + Express + TypeScript + Prisma로 구현해줘.
+
+요구사항:
+1. RESTful API 설계
+2. CRUD 엔드포인트: GET, POST, PUT, DELETE /api/tasks
+3. 에러 핸들링 미들웨어
+4. CORS 설정
+5. 입력 유효성 검사
+
+다음 파일 구조로 생성해줘:
+- src/server.ts (메인 서버)
+- src/routes/tasks.ts (태스크 라우트)
+- src/controllers/taskController.ts (컨트롤러)
+- src/services/taskService.ts (비즈니스 로직)
+- src/middleware/errorHandler.ts (에러 핸들러)
+- src/utils/validation.ts (유효성 검사)
+```
+
+#### 생성될 백엔드 코드
+
+**src/server.ts**
+```typescript
+import express from 'express';
+import cors from 'cors';
+import { taskRoutes } from './routes/tasks';
+import { errorHandler } from './middleware/errorHandler';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api/tasks', taskRoutes);
+
+// Error handling
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+```
+
+**src/controllers/taskController.ts**
+```typescript
+import { Request, Response, NextFunction } from 'express';
+import { taskService } from '../services/taskService';
+import { CreateTaskDTO, UpdateTaskDTO } from '../types/task';
+
+export const taskController = {
+  async getAllTasks(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tasks = await taskService.getAllTasks();
+      res.json(tasks);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async createTask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const taskData: CreateTaskDTO = req.body;
+      const task = await taskService.createTask(taskData);
+      res.status(201).json(task);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateTask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      const updateData: UpdateTaskDTO = req.body;
+      const task = await taskService.updateTask(id, updateData);
+      res.json(task);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async deleteTask(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id;
+      await taskService.deleteTask(id);
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+};
+```
+
+---
+
+### STEP 4: 프론트엔드 개발
+
+#### 🤖 Cursor 프롬프트 4-1
+```
+TaskFlow 프론트엔드를 React + TypeScript + Tailwind CSS로 구현해줘.
+
+요구사항:
+1. 할일 목록 표시 컴포넌트
+2. 할일 추가/수정 폼 컴포넌트
+3. 필터링 기능 (상태별, 우선순위별)
+4. 반응형 디자인
+5. 로딩 상태 및 에러 처리
+
+컴포넌트 구조:
+- src/components/TaskList.tsx
+- src/components/TaskItem.tsx
+- src/components/TaskForm.tsx
+- src/components/FilterBar.tsx
+- src/hooks/useTasks.ts
+- src/services/api.ts
+```
+
+#### 생성될 프론트엔드 코드
+
+**src/services/api.ts**
+```typescript
+import { Task, CreateTaskDTO, UpdateTaskDTO } from '../types/task';
+
+const API_BASE_URL = 'http://localhost:3001/api';
+
+export const api = {
+  async getAllTasks(): Promise<Task[]> {
+    const response = await fetch(`${API_BASE_URL}/tasks`);
+    if (!response.ok) throw new Error('Failed to fetch tasks');
+    return response.json();
+  },
+
+  async createTask(task: CreateTaskDTO): Promise<Task> {
+    const response = await fetch(`${API_BASE_URL}/tasks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(task),
+    });
+    if (!response.ok) throw new Error('Failed to create task');
+    return response.json();
+  },
+
+  async updateTask(id: string, task: UpdateTaskDTO): Promise<Task> {
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(task),
+    });
+    if (!response.ok) throw new Error('Failed to update task');
+    return response.json();
+  },
+
+  async deleteTask(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete task');
+  }
+};
+```
+
+**src/components/App.tsx**
+```typescript
+import React, { useState } from 'react';
+import { TaskList } from './components/TaskList';
+import { TaskForm } from './components/TaskForm';
+import { FilterBar } from './components/FilterBar';
+import { useTasks } from './hooks/useTasks';
+import { Status, Priority } from './types/task';
+
+function App() {
+  const { tasks, loading, error, createTask, updateTask, deleteTask } = useTasks();
+  const [statusFilter, setStatusFilter] = useState<Status | 'ALL'>('ALL');
+  const [priorityFilter, setPriorityFilter] = useState<Priority | 'ALL'>('ALL');
+
+  const filteredTasks = tasks.filter(task => {
+    if (statusFilter !== 'ALL' && task.status !== statusFilter) return false;
+    if (priorityFilter !== 'ALL' && task.priority !== priorityFilter) return false;
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">TaskFlow</h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <TaskForm onSubmit={createTask} />
+          </div>
+          
+          <div className="lg:col-span-2">
+            <FilterBar
+              statusFilter={statusFilter}
+              priorityFilter={priorityFilter}
+              onStatusFilterChange={setStatusFilter}
+              onPriorityFilterChange={setPriorityFilter}
+            />
+            
+            {loading && <div className="text-center py-4">Loading...</div>}
+            {error && <div className="text-red-500 text-center py-4">{error}</div>}
+            
+            <TaskList
+              tasks={filteredTasks}
+              onUpdate={updateTask}
+              onDelete={deleteTask}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+---
+
+### STEP 5: 테스트 및 배포
+
+#### 🤖 Cursor 프롬프트 5-1
+```
+TaskFlow 프로젝트의 테스트 코드를 작성해줘.
+
+요구사항:
+1. API 엔드포인트 테스트 (Jest + Supertest)
+2. React 컴포넌트 테스트 (Jest + React Testing Library)
+3. 통합 테스트 시나리오
+4. 배포 스크립트 (Docker)
+
+생성할 파일:
+- __tests__/api/tasks.test.ts
+- __tests__/components/TaskList.test.tsx
+- docker-compose.yml
+- Dockerfile
+```
+
+---
+
+## 🎯 단계별 실행 가이드
+
+### 1단계: 프로젝트 초기화
+```bash
+# 백엔드 설정
+mkdir backend && cd backend
+npm init -y
+npm install express cors prisma @prisma/client
+npm install -D typescript @types/node @types/express ts-node nodemon
+
+# 프론트엔드 설정
+cd .. && npx create-react-app frontend --template typescript
+cd frontend
+npm install tailwindcss axios
+```
+
+### 2단계: Cursor에서 각 프롬프트 실행
+1. 요구사항 분석 프롬프트 실행
+2. 데이터베이스 스키마 생성 프롬프트 실행
+3. 백엔드 API 구현 프롬프트 실행
+4. 프론트엔드 컴포넌트 생성 프롬프트 실행
+5. 테스트 코드 생성 프롬프트 실행
+
+### 3단계: 실행 및 테스트
+```bash
+# 백엔드 실행
+cd backend
+npx prisma generate
+npx prisma db push
+npm run dev
+
+# 프론트엔드 실행
+cd frontend
+npm start
+```
+
+---
+
+## 📝 학습 체크리스트
+
+- [ ] Cursor AI 프롬프트 작성 기법 이해
+- [ ] 단계별 개발 프로세스 경험
+- [ ] 타입스크립트 기반 풀스택 개발
+- [ ] AI 도구를 활용한 코드 생성 및 리팩토링
+- [ ] 테스트 코드 작성 자동화
+- [ ] 배포 환경 구성
+
+---
+
+## 🔧 추가 개선 과제
+
+1. **인증/권한 시스템 추가**
+2. **실시간 알림 기능 구현**
+3. **데이터 시각화 대시보드**
+4. **모바일 앱 확장**
+5. **AI 기반 할일 추천 기능**
+
+이 실습을 통해 AI 도구를 활용한 체계적인 개발 프로세스를 경험할 수 있습니다.

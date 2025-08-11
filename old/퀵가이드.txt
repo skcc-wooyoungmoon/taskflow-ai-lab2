@@ -1,0 +1,31 @@
+🎯 바로 시작하기 - 5분 퀵 스타트
+이제 실제로 시작해보세요!
+1️⃣ 환경 준비 (1분)
+bashmkdir taskflow-ai-lab && cd taskflow-ai-lab
+mkdir backend frontend
+2️⃣ Cursor에서 첫 번째 프롬프트 실행 (2분)
+
+Cursor IDE에서 taskflow-ai-lab 폴더 열기
+backend/prisma/schema.prisma 파일 생성
+위의 "Cursor 프롬프트 1-2" 복사해서 Cursor에 붙여넣기
+생성된 코드 확인
+
+3️⃣ 순서대로 프롬프트 실행 (10-15분)
+
+각 프롬프트를 순서대로 실행
+생성된 코드를 확인하고 필요시 수정 요청
+오류가 있으면 "이 코드에서 XX 오류가 발생합니다. 수정해주세요" 라고 요청
+
+4️⃣ 실행 및 테스트 (2분)
+bash# 터미널 1: 백엔드
+cd backend && npm install && npm run dev
+
+# 터미널 2: 프론트엔드  
+cd frontend && npm install && npm start
+💡 성공 포인트
+
+한 번에 완벽하지 않아도 OK: AI가 생성한 코드에 오류가 있으면 다시 요청하세요
+점진적 개선: 기본 기능부터 시작해서 단계적으로 기능 추가
+실험 정신: 프롬프트를 변형해서 다른 결과도 시도해보세요
+
+이 실습을 통해 AI 도구를 활용한 현대적인 개발 워크플로우를 경험할 수 있습니다. 각 단계에서 궁금한 점이 있으면 언제든 질문해주세요!

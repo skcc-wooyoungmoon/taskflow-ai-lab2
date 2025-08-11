@@ -1,0 +1,317 @@
+# TaskFlow - 개인 할일 관리 웹 애플리케이션 PRD
+
+## 📋 프로젝트 개요
+
+**프로젝트명**: TaskFlow - 개인 할일 관리 웹 애플리케이션
+**개발 기간**: 1-2일 (AI 도구 활용)
+**개발 방식**: AI 도구를 활용한 풀스택 개발
+
+## 🎯 핵심 요구사항
+
+### 기능 요구사항
+- 사용자가 할일을 추가, 수정, 삭제, 완료 처리할 수 있는 시스템
+- 우선순위별 할일 분류 기능 (HIGH, MEDIUM, LOW)
+- 마감일 설정 및 알림 기능
+- 반응형 웹 디자인 (모바일/데스크톱 지원)
+- 실시간 데이터 동기화
+- 태스크 필터링 및 검색 기능
+- 상태별 할일 관리 (PENDING, IN_PROGRESS, COMPLETED)
+
+### 기술 요구사항
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Backend**: Node.js + Express + TypeScript
+- **Database**: SQLite + Prisma ORM
+- **API**: RESTful API
+- **개발 도구**: Cursor IDE + AI 기능
+
+## 🏗️ 시스템 아키텍처
+
+### 백엔드 구조
+```
+taskflow-backend/
+├── src/
+│   ├── server.ts (Express 서버)
+│   ├── types/task.ts (TypeScript 타입 정의)
+│   ├── routes/tasks.ts (API 라우터)
+│   ├── controllers/taskController.ts (컨트롤러)
+│   ├── services/taskService.ts (비즈니스 로직)
+│   ├── middleware/errorHandler.ts (에러 핸들링)
+│   └── utils/validation.ts (유효성 검사)
+├── prisma/
+│   └── schema.prisma (데이터베이스 스키마)
+├── package.json
+├── tsconfig.json
+└── .env
+```
+
+### 프론트엔드 구조
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── TaskForm.tsx (태스크 생성/수정 폼)
+│   │   ├── TaskList.tsx (태스크 목록)
+│   │   └── FilterBar.tsx (필터링 컴포넌트)
+│   ├── services/
+│   │   └── api.ts (API 통신 서비스)
+│   ├── hooks/
+│   │   └── useTasks.ts (태스크 관리 훅)
+│   └── App.tsx (메인 컴포넌트)
+├── package.json
+└── tailwind.config.js
+```
+
+## 📊 데이터 모델
+
+### Task 모델 (Prisma Schema)
+```prisma
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    Priority @default(MEDIUM)
+  status      Status   @default(PENDING)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+```
+
+### TypeScript 타입 정의
+```typescript
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  dueDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface CreateTaskDTO {
+  title: string;
+  description?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  dueDate?: Date;
+}
+
+interface UpdateTaskDTO {
+  title?: string;
+  description?: string;
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  status?: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  dueDate?: Date;
+}
+```
+
+## 🔌 API 엔드포인트
+
+### RESTful API 설계
+- `GET /api/tasks` - 모든 태스크 조회
+- `GET /api/tasks/:id` - 특정 태스크 조회
+- `POST /api/tasks` - 새 태스크 생성
+- `PUT /api/tasks/:id` - 태스크 수정
+- `DELETE /api/tasks/:id` - 태스크 삭제
+
+### API 응답 형식
+```typescript
+// 성공 응답
+{
+  "data": Task | Task[],
+  "message": string
+}
+
+// 에러 응답
+{
+  "error": {
+    "message": string,
+    "statusCode": number,
+    "timestamp": string
+  }
+}
+```
+
+## 🎨 UI/UX 요구사항
+
+### 디자인 시스템
+- **프레임워크**: Tailwind CSS
+- **색상**: 우선순위별 색상 구분 (HIGH: 빨강, MEDIUM: 노랑, LOW: 초록)
+- **레이아웃**: 반응형 그리드 시스템
+- **상태 표시**: 아이콘과 색상으로 상태 구분
+
+### 컴포넌트 구조
+1. **TaskForm**: 태스크 생성/수정 폼
+2. **TaskList**: 태스크 목록 표시
+3. **FilterBar**: 필터링 및 검색 기능
+4. **App**: 메인 레이아웃 및 상태 관리
+
+### 반응형 디자인
+- **데스크톱**: 사이드바 + 메인 콘텐츠 레이아웃
+- **모바일**: 스택 레이아웃, 햄버거 메뉴
+
+## 🧪 테스트 요구사항
+
+### 백엔드 테스트
+- API 엔드포인트 통합 테스트
+- 데이터베이스 연동 테스트
+- 에러 핸들링 테스트
+- 유효성 검사 테스트
+
+### 프론트엔드 테스트
+- 컴포넌트 렌더링 테스트
+- 사용자 상호작용 테스트
+- API 통신 테스트
+- 상태 관리 테스트
+
+## 🚀 배포 요구사항
+
+### 개발 환경
+- **백엔드**: 포트 3001에서 실행
+- **프론트엔드**: 포트 3000에서 실행
+- **데이터베이스**: SQLite 로컬 파일
+
+### 프로덕션 환경
+- Docker 컨테이너화
+- 환경 변수 설정
+- 데이터베이스 마이그레이션
+- 헬스체크 엔드포인트
+
+## 📋 개발 프로세스
+
+### 1단계: 백엔드 초기 설정
+1. 프로젝트 구조 생성
+2. Prisma 스키마 설정
+3. TypeScript 타입 정의
+4. package.json 설정
+5. TypeScript 설정
+
+### 2단계: API 서버 구현
+1. Express 서버 설정
+2. 에러 핸들링 미들웨어
+3. 태스크 서비스 로직
+4. 태스크 컨트롤러
+5. 라우터 설정
+6. 유효성 검사 유틸리티
+
+### 3단계: 프론트엔드 구현
+1. React 프로젝트 설정
+2. API 서비스 생성
+3. 커스텀 훅 생성
+4. 컴포넌트 구현 (TaskForm, TaskList, FilterBar)
+5. 메인 App 컴포넌트
+
+### 4단계: 테스트 코드
+1. API 테스트 작성
+2. 컴포넌트 테스트 작성
+
+### 5단계: 배포 설정
+1. Docker 설정
+2. 배포 스크립트 작성
+
+## 🔧 기술 스택 상세
+
+### 백엔드 의존성
+```json
+{
+  "express": "^4.18.2",
+  "cors": "^2.8.5",
+  "prisma": "^5.0.0",
+  "@prisma/client": "^5.0.0"
+}
+```
+
+### 프론트엔드 의존성
+```json
+{
+  "react": "^18.0.0",
+  "react-dom": "^18.0.0",
+  "typescript": "^5.0.0",
+  "tailwindcss": "^3.0.0",
+  "axios": "^1.0.0",
+  "react-hook-form": "^7.0.0",
+  "date-fns": "^2.0.0"
+}
+```
+
+## 📈 성능 요구사항
+
+### 응답 시간
+- API 응답: 200ms 이내
+- 페이지 로딩: 2초 이내
+- 실시간 업데이트: 1초 이내
+
+### 확장성
+- 동시 사용자: 100명 지원
+- 데이터베이스: SQLite에서 PostgreSQL로 마이그레이션 가능
+- 캐싱: Redis 도입 가능
+
+## 🔒 보안 요구사항
+
+### 기본 보안
+- CORS 설정
+- 입력 데이터 유효성 검사
+- SQL 인젝션 방지 (Prisma ORM 사용)
+- XSS 방지
+
+### 향후 보안 강화
+- JWT 인증 시스템
+- 사용자 권한 관리
+- API 레이트 리미팅
+
+## 📝 문서화 요구사항
+
+### 코드 문서화
+- JSDoc 주석 작성
+- README.md 파일 작성
+- API 문서화 (Swagger/OpenAPI)
+
+### 사용자 문서화
+- 설치 가이드
+- 사용자 매뉴얼
+- 트러블슈팅 가이드
+
+## 🎯 성공 지표
+
+### 기능 완성도
+- [ ] 모든 CRUD 기능 구현
+- [ ] 필터링 및 검색 기능 구현
+- [ ] 반응형 디자인 구현
+- [ ] 에러 핸들링 구현
+
+### 품질 지표
+- [ ] 테스트 커버리지 80% 이상
+- [ ] TypeScript 타입 안전성 100%
+- [ ] 성능 요구사항 충족
+- [ ] 보안 요구사항 충족
+
+## 🔄 향후 개선 계획
+
+### Phase 2 기능
+- 사용자 인증 시스템
+- 실시간 알림 기능
+- 데이터 시각화 대시보드
+- 모바일 앱 개발
+
+### Phase 3 기능
+- AI 기반 할일 추천
+- 팀 협업 기능
+- 고급 분석 기능
+- 클라우드 배포
+
+이 PRD는 TaskFlow 애플리케이션의 완전한 요구사항을 정의하며, AI 도구를 활용한 체계적인 개발 프로세스를 통해 구현될 것입니다. 
