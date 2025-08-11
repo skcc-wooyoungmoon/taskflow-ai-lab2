@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Task, Status, CreateTaskData, UpdateTaskData } from './types/task';
+import { useState } from 'react';
+import type { Task, Status, CreateTaskData, UpdateTaskData } from './types/task';
 import { useTasks } from './hooks/useTasks';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
@@ -47,6 +47,14 @@ function App() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingTask(undefined);
+  };
+
+  const handleSubmit = async (data: CreateTaskData | UpdateTaskData) => {
+    if (editingTask) {
+      await handleUpdateTask(data as UpdateTaskData);
+    } else {
+      await handleCreateTask(data as CreateTaskData);
+    }
   };
 
   if (loading) {
@@ -111,7 +119,7 @@ function App() {
         {(showForm || editingTask) && (
           <TaskForm
             task={editingTask}
-            onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
+            onSubmit={handleSubmit}
             onCancel={handleCloseForm}
             isSubmitting={isSubmitting}
           />

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Task, Status, Priority } from '../types/task';
+import { useState } from 'react';
+import type { Task, Status } from '../types/task';
 import TaskCard from './TaskCard';
 
 interface TaskListProps {
@@ -23,9 +23,10 @@ export default function TaskList({ tasks, onStatusChange, onEdit, onDelete }: Ta
 
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     switch (sortBy) {
-      case 'priority':
+      case 'priority': {
         const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
       case 'dueDate':
         if (!a.dueDate && !b.dueDate) return 0;
         if (!a.dueDate) return 1;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Task, Priority, Status } from '../types/task';
+import type { ChangeEvent } from 'react';
+import type { Task, Status } from '../types/task';
 
 interface TaskCardProps {
   task: Task;
@@ -25,7 +25,7 @@ export default function TaskCard({ task, onStatusChange, onEdit, onDelete }: Tas
     return new Date(dateString).toLocaleDateString();
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
     onStatusChange(task.id, e.target.value as Status);
   };
 
